@@ -1,10 +1,16 @@
+:root {
+	--couleur-principale: rgb(18, 111, 143);
+	--couleur-fond: rgb(233, 232, 232);
+}
+
 body {
 	font-family: Arial, sans-serif;
 	margin: 0;
+	background-color: var(--couleur-fond);
 }
 
 header {
-	background-color: #333;
+	background-color: var(--couleur-principale);
 	color: white;
 	padding: 20px;
 }
@@ -29,7 +35,7 @@ nav li a {
 }
 
 nav li a:hover {
-	background-color: #111;
+	background-color: var(--couleur-principale);
 }
 
 main {
@@ -56,5 +62,3 @@ main {
 	border-radius: 5px;
 	border: 1px solid #ccc;
 }
-
-.post-form
