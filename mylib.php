@@ -51,55 +51,6 @@ function getArticleById($id)
     }
     return $req->fetchAll();
 }
-// A PRIORI PAS UTILE
-//function getBySignalement()
-//{
-//    $linkpdo = connexionBd();
-    // preparation de la Requête sql
-  //  $req = $linkpdo->prepare('select * from chuckn_facts where signalement > 0');
-    //if ($req == false) {
-        die('Erreur ! GetAll');
-    //}
-    // execution de la Requête sql
-    //$req->execute();
-    //if ($req == false) {
-     //   die('Erreur ! GetAll');
-    //}
-    //return $req->fetchAll();
-//}
-
-/*function getByVote()
-//{
-    $linkpdo = connexionBd();
-     preparation de la Requête sql
-    $req = $linkpdo->prepare('select * from chuckn_facts where vote > 3 order by vote desc');
-    if ($req == false) {
-        die('Erreur ! GetAll');
-    }
-     execution de la Requête sql
-    $req->execute();
-    if ($req == false) {
-        die('Erreur ! GetAll');
-    }
-    return $req->fetchAll();
-}*/
-
-/*function getByLast10()
-{
-    $linkpdo = connexionBd();
-    // preparation de la Requête sql
-    $req = $linkpdo->prepare('select * from chuckn_facts order by id desc limit 10');
-    if ($req == false) {
-        die('Erreur ! GetAll');
-    }
-    // execution de la Requête sql
-    $req->execute();
-    if ($req == false) {
-        die('Erreur ! GetAll');
-    }
-    return $req->fetchAll();
-}*/
-
 function getAllArticles()
 {
     $linkpdo = connexionBd();
@@ -116,73 +67,76 @@ function getAllArticles()
     return $req->fetchAll();
 }
 
-function post($phrase)
+function post($contenu,$id)
 {
     $linkpdo = connexionBd();
     // preparation de la Requête sql
-    $req = $linkpdo->prepare('insert into article (Contenu,Date_Publication,date_Modif,Id_Utilisateur) value(:contenu,NOW(),NOW(),:idUtilisateur)');
+    $req = $linkpdo->prepare('insert into article (Contenu,Date_Publication,Date_Modif,Id_Utilisateur) value(:contenu,NOW(),NOW(),:idUtilisateur)');
     if ($req == false) {
         die('Erreur ! Post');
     }
     // execution de la Requête sql
-    $req->execute(array(':phrase' => $phrase));
+    $req->execute(array(':contenu' => $contenu
+                        ':idUtilisateur'=>$id));
     if ($req == false) {
         die('Erreur ! Post');
     }
     // recuperation du dernier id
     $lastId = $linkpdo->lastInsertId();
-    return getId($lastId);
+    return getArticleById($lastId);
 }
 
-function put($id, $phrase)
+function put($id, $contenu)
 {
     $linkpdo = connexionBd();
     // preparation de la Requête sql
-    $req = $linkpdo->prepare('update chuckn_facts set phrase = :phrase, date_modif = NOW() where id = :id');
+    $req = $linkpdo->prepare('update article set contenu = :contenu, Date_Modif = NOW() where Id_Article = :id');
     if ($req == false) {
         die('Erreur ! Put');
     }
     // execution de la Requête sql
-    $req->execute(array('id' => $id, ':phrase' => $phrase));
+    $req->execute(array('id' => $id, ':contenu' => $contenu));
     if ($req == false) {
         die('Erreur ! Put');
     }
     // recuperation du dernier id
-    return getId($id);
+    return getArticleById($id);
 }
 
-function putVotePlus1($id)
+function putAvisPositif($idUtilisateur,$idArticle)
 {
     $linkpdo = connexionBd();
     // preparation de la Requête sql
-    $req = $linkpdo->prepare('update chuckn_facts set vote = vote + 1 where id = :id');
+    $req = $linkpdo->prepare('REPLACE INTO reagis (Id_Utilisateur, Id_Article, avis) VALUES (:idUtilisateur,:idArticle, 1)');
     if ($req == false) {
         die('Erreur ! Put');
     }
     // execution de la Requête sql
-    $req->execute(array('id' => $id));
+    $req->execute(array('idUtilisateur' => $idUtilisateur
+                        'idArticle' => $idArticle));
     if ($req == false) {
         die('Erreur ! Put');
     }
     // recuperation du dernier id
-    return getId($id);
+    return getAllArticles($id);
 }
 
-function putVoteMoins1($id)
+function putAvisNegatif($idUtilisateur,$idArticle)
 {
     $linkpdo = connexionBd();
     // preparation de la Requête sql
-    $req = $linkpdo->prepare('update chuckn_facts set vote = vote - 1 where id = :id');
+    $req = $linkpdo->prepare('REPLACE INTO reagis (Id_Utilisateur, Id_Article, avis) VALUES (:idUtilisateur,:idArticle, 2)');
     if ($req == false) {
         die('Erreur ! Put');
     }
     // execution de la Requête sql
-    $req->execute(array('id' => $id));
+    $req->execute(array('idUtilisateur' => $idUtilisateur
+                        'idArticle' => $idArticle));
     if ($req == false) {
         die('Erreur ! Put');
     }
     // recuperation du dernier id
-    return getId($id);
+    return getAllArticles($id);
 }
 
 function putSignalementPlus1($id)
