@@ -5,7 +5,7 @@ function connexionBd()
 {
     // informations de connection
     $SERVER = '127.0.0.1';
-    $DB = 'chuck_norris';
+    $DB = 'gestion_articles';
     $LOGIN = 'root';
     $MDP = '';
     // tentative de connexion à la BD
@@ -36,11 +36,11 @@ function if_jwt_correct()
     return is_jwt_valid(get_authorization_header());
 }
 
-function getId($id)
+function getArticleById($id)
 {
     $linkpdo = connexionBd();
     // preparation de la Requête sql
-    $req = $linkpdo->prepare('select * from chuckn_facts where id = :id');
+    $req = $linkpdo->prepare('SELECT Auteur,Contenu,Date_Modif,Date_Publication FROM article where id = :id');
     if ($req == false) {
         die('Erreur !');
     }
@@ -51,40 +51,40 @@ function getId($id)
     }
     return $req->fetchAll();
 }
-
-function getBySignalement()
-{
-    $linkpdo = connexionBd();
+// A PRIORI PAS UTILE
+//function getBySignalement()
+//{
+//    $linkpdo = connexionBd();
     // preparation de la Requête sql
-    $req = $linkpdo->prepare('select * from chuckn_facts where signalement > 0');
-    if ($req == false) {
+  //  $req = $linkpdo->prepare('select * from chuckn_facts where signalement > 0');
+    //if ($req == false) {
         die('Erreur ! GetAll');
-    }
+    //}
     // execution de la Requête sql
-    $req->execute();
-    if ($req == false) {
-        die('Erreur ! GetAll');
-    }
-    return $req->fetchAll();
-}
+    //$req->execute();
+    //if ($req == false) {
+     //   die('Erreur ! GetAll');
+    //}
+    //return $req->fetchAll();
+//}
 
-function getByVote()
-{
+/*function getByVote()
+//{
     $linkpdo = connexionBd();
-    // preparation de la Requête sql
+     preparation de la Requête sql
     $req = $linkpdo->prepare('select * from chuckn_facts where vote > 3 order by vote desc');
     if ($req == false) {
         die('Erreur ! GetAll');
     }
-    // execution de la Requête sql
+     execution de la Requête sql
     $req->execute();
     if ($req == false) {
         die('Erreur ! GetAll');
     }
     return $req->fetchAll();
-}
+}*/
 
-function getByLast10()
+/*function getByLast10()
 {
     $linkpdo = connexionBd();
     // preparation de la Requête sql
@@ -98,13 +98,13 @@ function getByLast10()
         die('Erreur ! GetAll');
     }
     return $req->fetchAll();
-}
+}*/
 
-function getAll()
+function getAllArticles()
 {
     $linkpdo = connexionBd();
     // preparation de la Requête sql
-    $req = $linkpdo->prepare('select * from chuckn_facts');
+    $req = $linkpdo->prepare('SELECT Auteur,Contenu,Date_Modif,Date_Publication FROM article');
     if ($req == false) {
         die('Erreur ! GetAll');
     }
@@ -120,7 +120,7 @@ function post($phrase)
 {
     $linkpdo = connexionBd();
     // preparation de la Requête sql
-    $req = $linkpdo->prepare('insert into chuckn_facts (phrase,vote,date_ajout,date_modif,faute, signalement) value(:phrase,0, NOW(),NOW(),0,0)');
+    $req = $linkpdo->prepare('insert into article (Contenu,Date_Publication,date_Modif,Id_Utilisateur) value(:contenu,NOW(),NOW(),:idUtilisateur)');
     if ($req == false) {
         die('Erreur ! Post');
     }
