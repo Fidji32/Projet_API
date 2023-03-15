@@ -9,34 +9,29 @@ header("Content-Type:application/json");
 $http_method = $_SERVER['REQUEST_METHOD'];
 switch ($http_method) {
 
-    //? Cas de la méthode GET
+    // Cas de la méthode GET
   case "GET":
     try {
-      //! Traitement
-      if (if_jwt_correct()) {
-        if (isset($_GET['id'])) {
-          //! Exception
-          if (empty($_GET['id'])) {
-            throw new Exception("Missing id", 404);
-          }
-          if ($_GET['id'] == "signalement") {
-            $matchingData = getBySignalement();
-          } elseif ($_GET['id'] == "vote") {
-            $matchingData = getByVote();
-          } elseif ($_GET['id'] == "last10") {
-            $matchingData = getByLast10();
-          } else {
-            $matchingData = getId($_GET['id']);
-          }
-        } else {
-          $matchingData = getALL();
+
+      //! //////////////
+      //! Traitement ///
+      //! //////////////
+
+      // Exception
+      if (empty($_GET['id'])) {
+        if (!isset($_GET['id'])) {
+          throw new Exception("L'entité fournie avec la requête est incompréhensible ou incomplète", 422);
         }
-        $RETURN_CODE = 200;
-        $STATUS_MESSAGE = "modification réussi";
-      } else {
-        $RETURN_CODE = 498;
-        $STATUS_MESSAGE = "Tokken invalide !";
       }
+      // Vérification validité jeton
+      //if (if_jwt_correct()) {
+      $matchingData = getAllArticles();
+      $RETURN_CODE = 200;
+      $STATUS_MESSAGE = "Requête traitée avec succès";
+      // } else {
+      //   $RETURN_CODE = 498;
+      //   $STATUS_MESSAGE = "Jeton expiré ou invalide";
+      // }
     } catch (\Throwable $th) {
       $RETURN_CODE = $th->getCode();
       $STATUS_MESSAGE = $th->getMessage();
