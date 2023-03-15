@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<title>My Chat App</title>
 	<link rel="stylesheet" type="text/css" href="style.css">
 </head>
+
 <body>
 	<header>
 		<h1>My Chat App</h1>
@@ -54,4 +56,5 @@
 		<p>&copy; 2023 My Chat App</p>
 	</footer>
 </body>
+
 </html>
