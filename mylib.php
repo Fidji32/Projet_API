@@ -21,9 +21,27 @@ function connexionBd()
 
 function is_connection_valid($login, $mdp)
 {
-  if ($login == "user" && $mdp == "pass") {
+  $linkpdo = connexionBd();
+  // preparation de la Requête sql
+  $req = $linkpdo->prepare('SELECT mail,Mdp,Nom,Id_Utilisateur,Id_Role FROM utilisateur where mail = :login and Mdp=:mdp');
+  if ($req == false) {
+    die('Erreur !');
+  }
+  // execution de la Requête sql
+  $req->execute(array('mail' => $login,
+                      'mdp' => $mdp ));
+  if ($req == false) {
+    die('Erreur !');
+  }
+  if ($req->rowCount() > 0) {
+      foreach ($data as $key => $value) {
+          if ($key == 'Id_Utilisateur') {
+             $idUser = $value;
+          }elseif($key == 'Id_Role'){
+            $idRole = $value;
+          }}
     $headers = array('alg' => 'HS256', 'typ' => 'jwt');
-    $payload = array('username' => $login, 'exp' => (time() + 60));
+    $payload = array('username' => $login,'IdUser'=> $idUser,'IdRole'=>$idRole,'exp' => (time() + 60));
     $jwt = generate_jwt($headers, $payload);
     return $jwt;
   } else {
@@ -40,7 +58,7 @@ function getArticleById($id)
 {
   $linkpdo = connexionBd();
   // preparation de la Requête sql
-  $req = $linkpdo->prepare('SELECT Auteur,Contenu,Date_Modif,Date_Publication FROM article where id = :id');
+  $req = $linkpdo->prepare('SELECT Auteur,Contenu,Date_Modif,Date_Publication FROM article where Id_Article = :id');
   if ($req == false) {
     die('Erreur !');
   }
@@ -76,7 +94,7 @@ function post($contenu,$id)
         die('Erreur ! Post');
     }
     // execution de la Requête sql
-    $req->execute(array(':contenu' => $contenu
+    $req->execute(array(':contenu' => $contenu,
                         ':idUtilisateur'=>$id));
     if ($req == false) {
         die('Erreur ! Post');
@@ -112,7 +130,7 @@ function putAvisPositif($idUtilisateur,$idArticle)
         die('Erreur ! Put');
     }
     // execution de la Requête sql
-    $req->execute(array('idUtilisateur' => $idUtilisateur
+    $req->execute(array('idUtilisateur' => $idUtilisateur,
                         'idArticle' => $idArticle));
     if ($req == false) {
         die('Erreur ! Put');
@@ -130,7 +148,7 @@ function putAvisNegatif($idUtilisateur,$idArticle)
         die('Erreur ! Put');
     }
     // execution de la Requête sql
-    $req->execute(array('idUtilisateur' => $idUtilisateur
+    $req->execute(array('idUtilisateur' => $idUtilisateur,
                         'idArticle' => $idArticle));
     if ($req == false) {
         die('Erreur ! Put');

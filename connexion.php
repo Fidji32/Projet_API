@@ -15,11 +15,11 @@ session_start();
 
 function methodeBody($postArray, $postArray2)
 {
-  $data = array("login" => $_POST[$postArray], "mdp" => $_POST[$postArray2]);
+  $data = array("login" => $postArray, "mdp" => $postArray2);
   $data_string = json_encode($data);
   /// Envoi de la requête
   $result = file_get_contents(
-    'http://localhost/Rest/authentification.php',
+    'http://localhost/Projet_API/auth.php',
     false,
     stream_context_create(array(
       'http' => array(
@@ -35,7 +35,8 @@ function methodeBody($postArray, $postArray2)
     echo '<p class="error-message">Login ou mot de passe invalide !</p>';
   } else {
     $_SESSION['jwt'] = $data['data'];
-    header('location: client.php');
+    //header('location: API.php');
+    echo $data['data'];
   }
 }
 
@@ -57,7 +58,7 @@ function methodeBody($postArray, $postArray2)
         <?php
         if (isset($_POST['username']) && isset($_POST['password'])) {
           // vérifier les identifiants et afficher un message d'erreur si nécessaire
-          methodeBody('username', 'password');
+          methodeBody($_POST['username'],$_POST['password']);
         }
         ?>
       </div>
