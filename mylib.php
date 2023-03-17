@@ -28,22 +28,28 @@ function is_connection_valid($login, $mdp)
     die('Erreur !');
   }
   // execution de la Requête sql
-  $req->execute(array('mail' => $login,
+  $req->execute(array('login' => $login,
                       'mdp' => $mdp ));
   if ($req == false) {
     die('Erreur !');
   }
   if ($req->rowCount() > 0) {
+    while ($data = $req->fetch(PDO::FETCH_ASSOC)) {
       foreach ($data as $key => $value) {
           if ($key == 'Id_Utilisateur') {
              $idUser = $value;
           }elseif($key == 'Id_Role'){
             $idRole = $value;
-          }}
+          }elseif($key=='Nom'){
+            $nom = $value;
+          }
+        }
+        }
     $headers = array('alg' => 'HS256', 'typ' => 'jwt');
-    $payload = array('username' => $login,'IdUser'=> $idUser,'IdRole'=>$idRole,'exp' => (time() + 60));
+    $payload = array('username' => $nom,'IdUser'=> $idUser,'IdRole'=>$idRole,'exp' => (time() + 60));
     $jwt = generate_jwt($headers, $payload);
     return $jwt;
+    
   } else {
     return "error";
   }

@@ -15,7 +15,7 @@ session_start();
 
 function methodeBody($postArray, $postArray2)
 {
-  $data = array("login" => $postArray, "mdp" => $postArray2);
+  $data = array("login" => $_POST[$postArray], "mdp" => $_POST[$postArray2]);
   $data_string = json_encode($data);
   /// Envoi de la requête
   $result = file_get_contents(
@@ -31,12 +31,13 @@ function methodeBody($postArray, $postArray2)
     ))
   );
   $data = json_decode($result, true);
+  //print_r($data['data']);
+  //exit();
   if ($data['data'] == "error") {
     echo '<p class="error-message">Login ou mot de passe invalide !</p>';
   } else {
     $_SESSION['jwt'] = $data['data'];
-    //header('location: API.php');
-    echo $data['data'];
+    header('location: API.php');
   }
 }
 
@@ -58,7 +59,7 @@ function methodeBody($postArray, $postArray2)
         <?php
         if (isset($_POST['username']) && isset($_POST['password'])) {
           // vérifier les identifiants et afficher un message d'erreur si nécessaire
-          methodeBody($_POST['username'],$_POST['password']);
+          methodeBody('username','password');
         }
         ?>
       </div>
