@@ -2,14 +2,12 @@
 require('jwt_utils.php');
 session_start();
 
-var_dump(json_decode(jwt_decode($_SESSION['jwt']), true));
-
     // récuperer les informations de l'utilisateur depuis le token
    $username=json_decode(jwt_decode($_SESSION['jwt']), true)['username'];
    $IdUser=json_decode(jwt_decode($_SESSION['jwt']), true)['IdUser'];
    $IdRole=json_decode(jwt_decode($_SESSION['jwt']), true)['IdRole'];
-    // $exp=json_decode(jwt_decode($_SESSION['token']), true)['exp'];
-    echo ($username.$IdRole.$IdUser);
+  $exp=json_decode(jwt_decode($_SESSION['jwt']), true)['exp'];
+
 ?>
 
 <!DOCTYPE html>
@@ -67,7 +65,6 @@ var_dump(json_decode(jwt_decode($_SESSION['jwt']), true));
     </section>
   </main>
   <footer>
-    <?php echo ($_SESSION['jwt']); ?>
     <p>&copy; 2023 My Chat App</p>
   </footer>
 </body>
