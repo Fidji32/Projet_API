@@ -17,17 +17,19 @@ switch ($http_method) {
       //! Traitement ///
       //! //////////////
 
-      // Exception
-      if (empty($_GET['id'])) {
-        if (!isset($_GET['id'])) {
-          throw new Exception("L'entité fournie avec la requête est incompréhensible ou incomplète", 422);
+      //Exception
+      if (isset($_GET['id'])) {
+        if (empty($_GET['id'])) {
+          throw new Exception("L'entité fournie (id) avec la requête est incompréhensible ou incomplète", 422);
         }
+        $matchingData = getArticleById($_GET['id']);
+      } else {
+        $matchingData = getAllArticles();
       }
-      // Vérification validité jeton
-      //if (if_jwt_correct()) {
-      $matchingData = getAllArticles();
       $RETURN_CODE = 200;
       $STATUS_MESSAGE = "Requête traitée avec succès";
+      // Vérification validité jeton
+      //if (if_jwt_correct()) {
       // } else {
       //   $RETURN_CODE = 498;
       //   $STATUS_MESSAGE = "Jeton expiré ou invalide";
@@ -45,18 +47,28 @@ switch ($http_method) {
     //! Cas de la méthode POST
   case "POST":
     try {
-      if (if_jwt_correct()) {
-        /// Récupération des données envoyées par le Client
-        $postedData = file_get_contents('php://input');
-        $postedData = json_decode($postedData, true);
-        /// Traitement
-        $matchingData = post($postedData['phrase']);
-        $RETURN_CODE = 200;
-        $STATUS_MESSAGE = "modification réussi";
-      } else {
-        $RETURN_CODE = 498;
-        $STATUS_MESSAGE = "Tokken invalide !";
+
+      //! //////////////
+      //! Traitement ///
+      //! //////////////
+
+      /// Récupération des données envoyées par le Client
+      $postedData = file_get_contents('php://input');
+      $postedData = json_decode($postedData, true);
+      //Exception
+      if (empty($postedData['contenu'])) {
+        throw new Exception("L'entité fournie (contenu) avec la requête est incompréhensible ou incomplète", 422);
       }
+      /// Traitement
+      $matchingData = post($postedData['contenu'], 1);
+      $RETURN_CODE = 200;
+      $STATUS_MESSAGE = "Requête traitée avec succès";
+      // Vérification validité jeton
+      //if (if_jwt_correct()) {
+      // } else {
+      //   $RETURN_CODE = 498;
+      //   $STATUS_MESSAGE = "Jeton expiré ou invalide";
+      // }
     } catch (\Throwable $th) {
       $RETURN_CODE = $th->getCode();
       $STATUS_MESSAGE = $th->getMessage();
@@ -147,10 +159,15 @@ switch ($http_method) {
 
     //! Cas de la méthode DELETE
   case "DELETE":
+
+    //! //////////////
+    //! Traitement ///
+    //! //////////////
+
     try {
-      //! Exception
+      //Exception
       if (empty($_GET['id'])) {
-        throw new Exception("Missing id", 404);
+        throw new Exception("L'entité fournie (id) avec la requête est incompréhensible ou incomplète", 422);
       }
       if (if_jwt_correct()) {
         /// Récupération de l'identifiant de la ressource envoyé par le Client

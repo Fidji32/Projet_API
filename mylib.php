@@ -40,7 +40,7 @@ function getArticleById($id)
 {
   $linkpdo = connexionBd();
   // preparation de la Requête sql
-  $req = $linkpdo->prepare('SELECT Auteur,Contenu,Date_Modif,Date_Publication FROM article where id = :id');
+  $req = $linkpdo->prepare('SELECT Nom,Contenu,Date_Modif,Date_Publication FROM article, utilisateur where article.Id_Utilisateur = utilisateur.Id_Utilisateur AND Id_Article = :id');
   if ($req == false) {
     die('Erreur !');
   }
@@ -56,7 +56,7 @@ function getAllArticles()
 {
   $linkpdo = connexionBd();
   // preparation de la Requête sql
-  $req = $linkpdo->prepare('SELECT Auteur,Contenu,Date_Modif,Date_Publication FROM article');
+  $req = $linkpdo->prepare('SELECT Nom,Contenu,Date_Modif,Date_Publication FROM article, utilisateur where article.Id_Utilisateur = utilisateur.Id_Utilisateur');
   if ($req == false) {
     die('Erreur ! GetAll');
   }
@@ -68,7 +68,7 @@ function getAllArticles()
   return $req->fetchAll();
 }
 
-function post($phrase)
+function post($phrase, $id)
 {
   $linkpdo = connexionBd();
   // preparation de la Requête sql
@@ -77,13 +77,16 @@ function post($phrase)
     die('Erreur ! Post');
   }
   // execution de la Requête sql
-  $req->execute(array(':phrase' => $phrase));
+  $req->execute(array(
+    ':contenu' => $phrase,
+    ':idUtilisateur' => $id
+  ));
   if ($req == false) {
     die('Erreur ! Post');
   }
   // recuperation du dernier id
   $lastId = $linkpdo->lastInsertId();
-  return getId($lastId);
+  return getArticleById($lastId);
 }
 
 function put($id, $phrase)
@@ -100,7 +103,7 @@ function put($id, $phrase)
     die('Erreur ! Put');
   }
   // recuperation du dernier id
-  return getId($id);
+  return getArticleById($id);
 }
 
 function putVotePlus1($id)
@@ -117,7 +120,7 @@ function putVotePlus1($id)
     die('Erreur ! Put');
   }
   // recuperation du dernier id
-  return getId($id);
+  return getArticleById($id);
 }
 
 function putVoteMoins1($id)
@@ -134,7 +137,7 @@ function putVoteMoins1($id)
     die('Erreur ! Put');
   }
   // recuperation du dernier id
-  return getId($id);
+  return getArticleById($id);
 }
 
 function putSignalementPlus1($id)
@@ -151,7 +154,7 @@ function putSignalementPlus1($id)
     die('Erreur ! Put');
   }
   // recuperation du dernier id
-  return getId($id);
+  return getArticleById($id);
 }
 
 function putSignalementMoins1($id)
@@ -168,7 +171,7 @@ function putSignalementMoins1($id)
     die('Erreur ! Put');
   }
   // recuperation du dernier id
-  return getId($id);
+  return getArticleById($id);
 }
 
 function delete($id)
