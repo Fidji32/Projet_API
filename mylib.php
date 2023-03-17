@@ -21,9 +21,34 @@ function connexionBd()
 
 function is_connection_valid($login, $mdp)
 {
-  if ($login == "user" && $mdp == "pass") {
+  $linkpdo = connexionBd();
+  // preparation de la Requête sql
+  $req = $linkpdo->prepare('SELECT mail,Mdp,Nom,Id_Utilisateur,Id_Role FROM utilisateur where mail = :login and Mdp=:mdp');
+  if ($req == false) {
+    die('Erreur !');
+  }
+  // execution de la Requête sql
+  $req->execute(array(
+    'login' => $login,
+    'mdp' => $mdp
+  ));
+  if ($req == false) {
+    die('Erreur !');
+  }
+  if ($req->rowCount() > 0) {
+    while ($data = $req->fetch(PDO::FETCH_ASSOC)) {
+      foreach ($data as $key => $value) {
+        if ($key == 'Id_Utilisateur') {
+          $idUser = $value;
+        } elseif ($key == 'Id_Role') {
+          $idRole = $value;
+        } elseif ($key == 'Nom') {
+          $nom = $value;
+        }
+      }
+    }
     $headers = array('alg' => 'HS256', 'typ' => 'jwt');
-    $payload = array('username' => $login, 'exp' => (time() + 60));
+    $payload = array('username' => $nom, 'IdUser' => $idUser, 'IdRole' => $idRole, 'exp' => (time() + 60));
     $jwt = generate_jwt($headers, $payload);
     return $jwt;
   } else {
@@ -51,7 +76,6 @@ function getArticleById($id)
   }
   return $req->fetchAll();
 }
-
 function getAllArticles()
 {
   $linkpdo = connexionBd();
@@ -89,7 +113,7 @@ function post($phrase, $id)
   return getArticleById($lastId);
 }
 
-function put($id, $phrase)
+function put($id, $contenu)
 {
   $linkpdo = connexionBd();
   // preparation de la Requête sql
@@ -106,7 +130,7 @@ function put($id, $phrase)
   return getArticleById($id);
 }
 
-function putVotePlus1($id)
+function putAvisPositif($idUtilisateur, $idArticle)
 {
   $linkpdo = connexionBd();
   // preparation de la Requête sql
@@ -123,7 +147,7 @@ function putVotePlus1($id)
   return getArticleById($id);
 }
 
-function putVoteMoins1($id)
+function putAvisNegatif($idUtilisateur, $idArticle)
 {
   $linkpdo = connexionBd();
   // preparation de la Requête sql

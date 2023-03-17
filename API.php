@@ -1,6 +1,14 @@
 <?php
 require_once("functions.php");
+require('jwt_utils.php');
 session_start();
+
+// récuperer les informations de l'utilisateur depuis le token
+$username = json_decode(jwt_decode($_SESSION['jwt']), true)['username'];
+$IdUser = json_decode(jwt_decode($_SESSION['jwt']), true)['IdUser'];
+$IdRole = json_decode(jwt_decode($_SESSION['jwt']), true)['IdRole'];
+$exp = json_decode(jwt_decode($_SESSION['jwt']), true)['exp'];
+
 ?>
 
 <!DOCTYPE html>
