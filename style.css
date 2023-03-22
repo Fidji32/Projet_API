@@ -13,6 +13,11 @@ header {
 	background-color: var(--couleur-principale);
 	color: white;
 	padding: 20px;
+
+}
+
+article {
+	margin-top: 20px;
 }
 
 nav ul {
@@ -39,26 +44,30 @@ nav li a:hover {
 }
 
 main {
-	display: flex;
-	flex-wrap: wrap;
+	display: grid;
 	padding: 20px;
 }
 
 .post-form {
-	flex: 1;
+	flex: auto;
 }
 
 .post-form label {
-	display: block;
+	flex: auto;
 	margin-bottom: 10px;
 	font-weight: bold;
 }
 
 .post-form textarea {
-	display: block;
 	width: 100%;
 	margin-bottom: 10px;
 	padding: 5px;
 	border-radius: 5px;
 	border: 1px solid #ccc;
+}
+
+.last {
+	background-color: rgb(24, 160, 24);
+	color: white;
+	padding: 20px;
 }
