@@ -54,6 +54,7 @@ function methodePost($postArray, $postArray2)
       <input type="password" id="password" name="password" required>
 
       <button type="submit">Se connecter</button>
+      <a href="/Projet_API/API.php">Continuer sans se connecter</a>
 
       <div class="error-message">
         <?php
