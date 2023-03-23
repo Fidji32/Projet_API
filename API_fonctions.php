@@ -1,5 +1,6 @@
 <?php
 
+
 function retourDonnees($data)
 {
 
@@ -23,14 +24,16 @@ function retourDonnees($data)
   echo '</form></section>';
 }
 
-function getServeur($post)
+function GetOrGetId($post)
 {
   if (!isset($_POST[$post])) {
     $result = file_get_contents(
       'http://localhost/Projet_API/serveur.php',
       false,
       stream_context_create(array('http' => array(
-        'method' => 'GET'
+        'method' => 'GET',
+        'header' => array('Content-Type: application/json' . "\r\n"
+          . 'Authorization: Bearer ' . $_SESSION['jwt'] . "\r\n")
       )))
     );
   } else {
@@ -38,14 +41,16 @@ function getServeur($post)
       'http://localhost/Projet_API/serveur.php?id=' . $post,
       false,
       stream_context_create(array('http' => array(
-        'method' => 'GET'
+        'method' => 'GET',
+        'header' => array('Content-Type: application/json' . "\r\n"
+          . 'Authorization: Bearer ' . $_SESSION['jwt'] . "\r\n")
       )))
     );
   }
   return json_decode($result, true);
 }
 
-function methodBody($postArray)
+function methodePost($postArray)
 {
   $data = array("contenu" => $_POST[$postArray]);
   $data_string = json_encode($data);
@@ -58,7 +63,8 @@ function methodBody($postArray)
         'method' => 'POST',
         'content' => $data_string,
         'header' => array('Content-Type: application/json' . "\r\n"
-          . 'Content-Length: ' . strlen($data_string) . "\r\n")
+          . 'Content-Length: ' . strlen($data_string) . "\r\n"
+          . 'Authorization: Bearer ' . $_SESSION['jwt'] . "\r\n")
       )
     ))
   );
@@ -68,7 +74,7 @@ function methodBody($postArray)
 
 function listArticles($post)
 {
-  $data = getServeur($post);
+  $data = GetOrGetId($post);
   foreach ($data['data'] as $v) {
     echo '<form action="">
         <article>

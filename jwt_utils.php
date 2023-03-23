@@ -81,14 +81,10 @@ function get_bearer_token()
   return null;
 }
 
-function jwt_decode($jwt, $secret='secret'){
-
+function jwt_decode($jwt, $secret = 'secret')
+{
   //split the jwt
-  $tokenParts=explode('.', $jwt);
-  $payload=base64_decode($tokenParts[1]);
-
+  $tokenParts = explode('.', $jwt);
+  $payload = base64_decode($tokenParts[1]);
   return $payload;
-
-
-
 }

@@ -56,11 +56,6 @@ function is_connection_valid($login, $mdp)
   }
 }
 
-function if_jwt_correct()
-{
-  return is_jwt_valid(get_authorization_header());
-}
-
 function getArticleById($id)
 {
   $linkpdo = connexionBd();
@@ -111,104 +106,4 @@ function post($phrase, $id)
   // recuperation du dernier id
   $lastId = $linkpdo->lastInsertId();
   return getArticleById($lastId);
-}
-
-function put($id, $contenu)
-{
-  $linkpdo = connexionBd();
-  // preparation de la Requête sql
-  $req = $linkpdo->prepare('update chuckn_facts set phrase = :phrase, date_modif = NOW() where id = :id');
-  if ($req == false) {
-    die('Erreur ! Put');
-  }
-  // execution de la Requête sql
-  $req->execute(array('id' => $id, ':phrase' => $phrase));
-  if ($req == false) {
-    die('Erreur ! Put');
-  }
-  // recuperation du dernier id
-  return getArticleById($id);
-}
-
-function putAvisPositif($idUtilisateur, $idArticle)
-{
-  $linkpdo = connexionBd();
-  // preparation de la Requête sql
-  $req = $linkpdo->prepare('update chuckn_facts set vote = vote + 1 where id = :id');
-  if ($req == false) {
-    die('Erreur ! Put');
-  }
-  // execution de la Requête sql
-  $req->execute(array('id' => $id));
-  if ($req == false) {
-    die('Erreur ! Put');
-  }
-  // recuperation du dernier id
-  return getArticleById($id);
-}
-
-function putAvisNegatif($idUtilisateur, $idArticle)
-{
-  $linkpdo = connexionBd();
-  // preparation de la Requête sql
-  $req = $linkpdo->prepare('update chuckn_facts set vote = vote - 1 where id = :id');
-  if ($req == false) {
-    die('Erreur ! Put');
-  }
-  // execution de la Requête sql
-  $req->execute(array('id' => $id));
-  if ($req == false) {
-    die('Erreur ! Put');
-  }
-  // recuperation du dernier id
-  return getArticleById($id);
-}
-
-function putSignalementPlus1($id)
-{
-  $linkpdo = connexionBd();
-  // preparation de la Requête sql
-  $req = $linkpdo->prepare('update chuckn_facts set signalement = signalement + 1 where id = :id');
-  if ($req == false) {
-    die('Erreur ! Put');
-  }
-  // execution de la Requête sql
-  $req->execute(array('id' => $id));
-  if ($req == false) {
-    die('Erreur ! Put');
-  }
-  // recuperation du dernier id
-  return getArticleById($id);
-}
-
-function putSignalementMoins1($id)
-{
-  $linkpdo = connexionBd();
-  // preparation de la Requête sql
-  $req = $linkpdo->prepare('update chuckn_facts set signalement = signalement - 1 where id = :id');
-  if ($req == false) {
-    die('Erreur ! Put');
-  }
-  // execution de la Requête sql
-  $req->execute(array('id' => $id));
-  if ($req == false) {
-    die('Erreur ! Put');
-  }
-  // recuperation du dernier id
-  return getArticleById($id);
-}
-
-function delete($id)
-{
-  $linkpdo = connexionBd();
-  // preparation de la Requête sql
-  $req = $linkpdo->prepare('delete from chuckn_facts where id = :id');
-  if ($req == false) {
-    die('Erreur ! Delete');
-  }
-  // execution de la Requête sql
-  $req->execute(array('id' => $id));
-  if ($req == false) {
-    die('Erreur ! Delete');
-  }
 }

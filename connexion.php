@@ -13,13 +13,13 @@ session_start();
 
 <?php
 
-function methodeBody($postArray, $postArray2)
+function methodePost($postArray, $postArray2)
 {
   $data = array("login" => $_POST[$postArray], "mdp" => $_POST[$postArray2]);
   $data_string = json_encode($data);
   /// Envoi de la requête
   $result = file_get_contents(
-    'http://localhost/Projet_API/auth.php',
+    'http://localhost/Projet_API/serveur_auth.php',
     false,
     stream_context_create(array(
       'http' => array(
@@ -59,7 +59,7 @@ function methodeBody($postArray, $postArray2)
         <?php
         if (isset($_POST['username']) && isset($_POST['password'])) {
           // vérifier les identifiants et afficher un message d'erreur si nécessaire
-          methodeBody('username','password');
+          methodePost('username', 'password');
         }
         ?>
       </div>

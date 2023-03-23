@@ -1,13 +1,13 @@
 <?php
-require_once("functions.php");
+require_once("API_fonctions.php");
 require('jwt_utils.php');
 session_start();
 
 // récuperer les informations de l'utilisateur depuis le token
-$username = json_decode(jwt_decode($_SESSION['jwt']), true)['username'];
-$IdUser = json_decode(jwt_decode($_SESSION['jwt']), true)['IdUser'];
-$IdRole = json_decode(jwt_decode($_SESSION['jwt']), true)['IdRole'];
-$exp = json_decode(jwt_decode($_SESSION['jwt']), true)['exp'];
+$SESSION['username'] = json_decode(jwt_decode($_SESSION['jwt']), true)['username'];
+$SESSION['IdUser'] = json_decode(jwt_decode($_SESSION['jwt']), true)['IdUser'];
+$SESSION['IdRole'] = json_decode(jwt_decode($_SESSION['jwt']), true)['IdRole'];
+$SESSION['exp'] = json_decode(jwt_decode($_SESSION['jwt']), true)['exp'];
 
 ?>
 
@@ -33,7 +33,7 @@ $exp = json_decode(jwt_decode($_SESSION['jwt']), true)['exp'];
   <?php
 
   if (isset($_POST['add']) && isset($_POST['contenu'])) {
-    methodBody("contenu");
+    methodePost("contenu");
   }
 
   ?>
