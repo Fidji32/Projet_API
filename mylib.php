@@ -107,3 +107,26 @@ function post($phrase, $id)
   $lastId = $linkpdo->lastInsertId();
   return getArticleById($lastId);
 }
+function avis($avis,$idArticle,$idUser){
+  $linkpdo = connexionBd();
+  // preparation de la Requête sql
+  $req = $linkpdo->prepare('REPLACE INTO `reagis` (`Id_Article`, `Id_Utilisateur`, `Avis`) VALUES (:idArticle,:idUser,:avis);');
+  if ($req == false) {
+    die('Erreur ! Avis');
+  }
+  // execution de la Requête sql
+  $req->execute(array(
+    ':idArticle' => $idArticle,
+    ':idUser' => $id,
+    ':avis' => $idUser
+  ));
+  if ($req == false) {
+    die('Erreur ! Avis');
+  }
+  // recuperation du dernier id
+  $lastId = $linkpdo->lastInsertId();
+  return getArticleById($lastId);
+}
+  
+
+
