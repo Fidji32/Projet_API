@@ -5,6 +5,10 @@ include('mylib.php');
 /// Paramétrage de l'entête HTTP (pour la réponse au Client)
 header("Content-Type:application/json");
 
+// Récupération token et création varaibles
+$IdRole = json_decode(jwt_decode(get_bearer_token()), true)['IdRole'];
+$exp = json_decode(jwt_decode(get_bearer_token()), true)['exp'];
+
 /// Identification du type de méthode HTTP envoyée par le client
 $http_method = $_SERVER['REQUEST_METHOD'];
 switch ($http_method) {
@@ -28,21 +32,14 @@ switch ($http_method) {
       }
       $RETURN_CODE = 200;
       $STATUS_MESSAGE = "Requête traitée avec succès";
-      // Vérification validité jeton
-      //if (if_jwt_correct()) {
-      // } else {
-      //   $RETURN_CODE = 498;
-      //   $STATUS_MESSAGE = "Jeton expiré ou invalide";
-      // }
     } catch (\Throwable $th) {
       $RETURN_CODE = $th->getCode();
       $STATUS_MESSAGE = $th->getMessage();
     } finally {
-      //! Envoi de la réponse au Client
+      //Envoi de la réponse au Client
       deliver_response($RETURN_CODE, $STATUS_MESSAGE, $matchingData);
     }
     break;
-
 
     //! Cas de la méthode POST
   case "POST":
@@ -52,28 +49,28 @@ switch ($http_method) {
       //! Traitement ///
       //! //////////////
 
-      /// Récupération des données envoyées par le Client
-      $postedData = file_get_contents('php://input');
-      $postedData = json_decode($postedData, true);
-      //Exception
-      if (empty($postedData['contenu'])) {
-        throw new Exception("L'entité fournie (contenu) avec la requête est incompréhensible ou incomplète", 422);
+      if ($IdRole == 2) {
+        // Récupération des données envoyées par le Client
+        $postedData = file_get_contents('php://input');
+        $postedData = json_decode($postedData, true);
+        //Exception
+        if (empty($postedData['contenu'])) {
+          throw new Exception("L'entité fournie (contenu) avec la requête est incompréhensible ou incomplète", 422);
+        }
+        // Traitement
+        $matchingData = post($postedData['contenu'], 1);
+        $RETURN_CODE = 200;
+        $STATUS_MESSAGE = "Requête traitée avec succès";
+      } else {
+        $matchingData = null;
+        $RETURN_CODE = 403;
+        $STATUS_MESSAGE = "Permission non accordée";
       }
-      /// Traitement
-      $matchingData = post($postedData['contenu'], 1);
-      $RETURN_CODE = 200;
-      $STATUS_MESSAGE = "Requête traitée avec succès";
-      // Vérification validité jeton
-      //if (if_jwt_correct()) {
-      // } else {
-      //   $RETURN_CODE = 498;
-      //   $STATUS_MESSAGE = "Jeton expiré ou invalide";
-      // }
     } catch (\Throwable $th) {
       $RETURN_CODE = $th->getCode();
       $STATUS_MESSAGE = $th->getMessage();
     } finally {
-      //! Envoi de la réponse au Client
+      //Envoi de la réponse au Client
       deliver_response($RETURN_CODE, $STATUS_MESSAGE, $matchingData);
     }
     break;
@@ -166,15 +163,15 @@ switch ($http_method) {
 
     try {
       //Exception
-      if (empty($_GET['id'])) {
-        throw new Exception("L'entité fournie (id) avec la requête est incompréhensible ou incomplète", 422);
+      if (isset($_GET['id'])) {
+        if (empty($_GET['id'])) {
+          throw new Exception("L'entité fournie (id) avec la requête est incompréhensible ou incomplète", 422);
+        }
       }
       if (if_jwt_correct()) {
         /// Récupération de l'identifiant de la ressource envoyé par le Client
-        if (isset($_GET['id'])) {
-          /// Traitement
-          $matchingData = delete($_GET['id']);
-        }
+        /// Traitement
+        $matchingData = delete($_GET['id']);
         $RETURN_CODE = 200;
         $STATUS_MESSAGE = "modification réussi";
       } else {
