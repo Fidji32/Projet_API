@@ -103,3 +103,22 @@ function delete()
     );
   }
 }
+function methodePut($put){
+  /// Envoi de la requête
+  $result = file_get_contents(
+    'http://localhost/Projet_API/serveur.php?id=' . $put,
+    false,
+    stream_context_create(array(
+      'http' => array(
+        'method' => 'PUT',
+        'content' => $data_string,
+        'header' => array('Content-Type: application/json' . "\r\n"
+          . 'Content-Length: ' . strlen($data_string) . "\r\n"
+          . 'Authorization: Bearer ' . $_SESSION['jwt'] . "\r\n")
+      )
+    ))
+  );
+  $data = json_decode($result, true);
+  retourDonnees($data);
+}
+
