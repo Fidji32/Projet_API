@@ -60,22 +60,23 @@ function getArticleById($id)
 {
   $linkpdo = connexionBd();
   // preparation de la Requête sql
-  $req = $linkpdo->prepare('SELECT Nom,Contenu,Date_Modif,Date_Publication FROM article, utilisateur where article.Id_Utilisateur = utilisateur.Id_Utilisateur AND Id_Article = :id');
+  $req = $linkpdo->prepare('SELECT Id_Article, Date_Publication, Contenu, Date_Modif, article.Id_Utilisateur FROM article, utilisateur where article.Id_Utilisateur = utilisateur.Id_Utilisateur AND Id_Article = :id');
   if ($req == false) {
-    die('Erreur !');
+    die('Erreur ! GetId');
   }
   // execution de la Requête sql
   $req->execute(array('id' => $id));
   if ($req == false) {
-    die('Erreur !');
+    die('Erreur ! GetId');
   }
   return $req->fetchAll();
 }
+
 function getAllArticles()
 {
   $linkpdo = connexionBd();
   // preparation de la Requête sql
-  $req = $linkpdo->prepare('SELECT Nom,Contenu,Date_Modif,Date_Publication FROM article, utilisateur where article.Id_Utilisateur = utilisateur.Id_Utilisateur');
+  $req = $linkpdo->prepare('SELECT Id_Article, Date_Publication, Contenu, Date_Modif, article.Id_Utilisateur, Nom FROM article, utilisateur where article.Id_Utilisateur = utilisateur.Id_Utilisateur');
   if ($req == false) {
     die('Erreur ! GetAll');
   }
@@ -106,4 +107,21 @@ function post($phrase, $id)
   // recuperation du dernier id
   $lastId = $linkpdo->lastInsertId();
   return getArticleById($lastId);
+}
+
+function delete($id)
+{
+  $linkpdo = connexionBd();
+  // preparation de la Requête sql
+  $req = $linkpdo->prepare('delete from articles where Id_Article = :idArticle');
+  if ($req == false) {
+    die('Erreur ! Delete');
+  }
+  // execution de la Requête sql
+  $req->execute(array(
+    ':idArticle' => $id
+  ));
+  if ($req == false) {
+    die('Erreur ! Delete');
+  }
 }

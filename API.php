@@ -4,10 +4,10 @@ require('jwt_utils.php');
 session_start();
 
 // récuperer les informations de l'utilisateur depuis le token
-$SESSION['username'] = json_decode(jwt_decode($_SESSION['jwt']), true)['username'];
-$SESSION['IdUser'] = json_decode(jwt_decode($_SESSION['jwt']), true)['IdUser'];
-$SESSION['IdRole'] = json_decode(jwt_decode($_SESSION['jwt']), true)['IdRole'];
-$SESSION['exp'] = json_decode(jwt_decode($_SESSION['jwt']), true)['exp'];
+$_SESSION['username'] = json_decode(jwt_decode($_SESSION['jwt']), true)['username'];
+$_SESSION['IdUser'] = json_decode(jwt_decode($_SESSION['jwt']), true)['IdUser'];
+$_SESSION['IdRole'] = json_decode(jwt_decode($_SESSION['jwt']), true)['IdRole'];
+$_SESSION['exp'] = json_decode(jwt_decode($_SESSION['jwt']), true)['exp'];
 
 ?>
 
@@ -34,6 +34,10 @@ $SESSION['exp'] = json_decode(jwt_decode($_SESSION['jwt']), true)['exp'];
 
   if (isset($_POST['add']) && isset($_POST['contenu'])) {
     methodePost("contenu");
+  }
+
+  if (isset($_POST['supprimer'])) {
+    delete($_POST['supprimer']);
   }
 
   ?>

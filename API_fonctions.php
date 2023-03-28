@@ -1,6 +1,5 @@
 <?php
 
-
 function retourDonnees($data)
 {
 
@@ -31,9 +30,7 @@ function GetOrGetId($post)
       'http://localhost/Projet_API/serveur.php',
       false,
       stream_context_create(array('http' => array(
-        'method' => 'GET',
-        'header' => array('Content-Type: application/json' . "\r\n"
-          . 'Authorization: Bearer ' . $_SESSION['jwt'] . "\r\n")
+        'method' => 'GET'
       )))
     );
   } else {
@@ -41,9 +38,7 @@ function GetOrGetId($post)
       'http://localhost/Projet_API/serveur.php?id=' . $post,
       false,
       stream_context_create(array('http' => array(
-        'method' => 'GET',
-        'header' => array('Content-Type: application/json' . "\r\n"
-          . 'Authorization: Bearer ' . $_SESSION['jwt'] . "\r\n")
+        'method' => 'GET'
       )))
     );
   }
@@ -76,7 +71,7 @@ function listArticles($post)
 {
   $data = GetOrGetId($post);
   foreach ($data['data'] as $v) {
-    echo '<form action="">
+    echo '<form method="POST">
         <article>
           <header>
             <p>' . $v['Contenu'] . '</p>
@@ -87,8 +82,24 @@ function listArticles($post)
             <button class="like" name="like">Like</button>
             <button class="dislike" name="dislike">Dislike</button>
             <span class="likes">0 likes</span>
-          </footer>
-        </article>
-    </form>';
+          </footer>';
+    if ($v['Id_Utilisateur'] == $_SESSION['IdUser']) {
+      echo '<button class="supprimer" name="supprimer" value="' . $v['Id_Article'] . '">Supprimer</button>';
+    }
+    echo '</article></form>';
+  }
+}
+
+function delete()
+{
+  if (isset($_POST['supprimer'])) {
+    $result = file_get_contents(
+      'http://localhost/Projet_API/serveur.php?id=' . $_POST['supprimer'],
+      false,
+      stream_context_create(array('http' => array(
+        'method' => 'DELETE',
+        'header' => 'Authorization: Bearer ' . $_SESSION['jwt']
+      )))
+    );
   }
 }
