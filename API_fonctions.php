@@ -11,11 +11,13 @@ function retourDonnees($data)
             <p>' . $v['Contenu'] . '</p>
             <p>' . $v['Nom'] . '</p>
           </header>
-          <button type="submit" class="delete" name="delete">Supprimer</button>
+          <button type="submit" class="supprimer" name="supprimer" value="' . $v['Id_Article'] . '">Supprimer</button>
+          <button class="modifier" name="modifier" value="' . $v['Id_Article'] . '">Modifier</button>
           <p>' . $v['Date_Publication'] . '.</p>
           <footer>
-            <button class="like" name="like">Like</button>
-            <button class="dislike" name="dislike">Dislike</button>
+            <button type="submit" class="like" name="like" value="1">Like</button>
+            <button type="submit" class="dislike" name="dislike" value="0">Dislike</button>
+            <input type="hidden" name="hidden" value="' . $v['Id_Article'] . '"></input>
             <span class="likes">0 likes</span>
           </footer>
         </article>';
@@ -25,7 +27,7 @@ function retourDonnees($data)
 
 function GetOrGetId($post)
 {
-  if (!isset($_POST[$post])) {
+  if ($post == "") {
     $result = file_get_contents(
       'http://localhost/Projet_API/serveur.php',
       false,
@@ -33,9 +35,17 @@ function GetOrGetId($post)
         'method' => 'GET'
       )))
     );
+  } elseif (!isset($_POST[$post])) {
+    $result = file_get_contents(
+      'http://localhost/Projet_API/serveur.php?idUti=' . $post,
+      false,
+      stream_context_create(array('http' => array(
+        'method' => 'GET'
+      )))
+    );
   } else {
     $result = file_get_contents(
-      'http://localhost/Projet_API/serveur.php?id=' . $post,
+      'http://localhost/Projet_API/serveur.php?id=' . $_POST[$post],
       false,
       stream_context_create(array('http' => array(
         'method' => 'GET'
@@ -51,7 +61,7 @@ function methodePost($postArray)
   $data_string = json_encode($data);
   /// Envoi de la requête
   $result = file_get_contents(
-    'http://localhost/Projet_API/serveur.php',
+    'http://localhost/Projet_API/serveur.php?id=' . $_SESSION['IdUser'],
     false,
     stream_context_create(array(
       'http' => array(
@@ -79,12 +89,16 @@ function listArticles($post)
           </header>
           <p>' . $v['Date_Publication'] . '.</p>
           <footer>
-            <button class="like" name="like">Like</button>
-            <button class="dislike" name="dislike">Dislike</button>
+            <button type="submit" class="like" name="like" value="1">Like</button>
+            <button type="submit" class="dislike" name="dislike" value="0">Dislike</button>
+            <input type="hidden" name="hidden" value="' . $v['Id_Article'] . '"></input>
             <span class="likes">0 likes</span>
           </footer>';
-    if ($v['Id_Utilisateur'] == $_SESSION['IdUser']) {
+    if ($v['Id_Utilisateur'] == $_SESSION['IdUser'] || $_SESSION['IdRole'] == 1) {
       echo '<button class="supprimer" name="supprimer" value="' . $v['Id_Article'] . '">Supprimer</button>';
+    }
+    if ($v['Id_Utilisateur'] == $_SESSION['IdUser'] && $_SESSION['IdRole'] == 2) {
+      echo '<button class="modifier" name="modifier" value="' . $v['Id_Article'] . '">Modifier</button>';
     }
     echo '</article></form>';
   }
@@ -103,7 +117,11 @@ function delete()
     );
   }
 }
-function methodePut($put){
+
+function methodePut($put, $postArray)
+{
+  $data = array("contenu" => $postArray);
+  $data_string = json_encode($data);
   /// Envoi de la requête
   $result = file_get_contents(
     'http://localhost/Projet_API/serveur.php?id=' . $put,
@@ -122,3 +140,41 @@ function methodePut($put){
   retourDonnees($data);
 }
 
+function methodePostAvis($avis, $article, $utilisateur)
+{
+  $data = array("avis" => $avis, "utilisateur" => $utilisateur);
+  $data_string = json_encode($data);
+  /// Envoi de la requête
+  $result = file_get_contents(
+    'http://localhost/Projet_API/serveur.php?id=' . $article,
+    false,
+    stream_context_create(array(
+      'http' => array(
+        'method' => 'POST',
+        'content' => $data_string,
+        'header' => array('Content-Type: application/json' . "\r\n"
+          . 'Content-Length: ' . strlen($data_string) . "\r\n"
+          . 'Authorization: Bearer ' . $_SESSION['jwt'] . "\r\n")
+      )
+    ))
+  );
+  $data = json_decode($result, true);
+  retourDonnees($data);
+}
+
+function modification()
+{
+  $data = GetOrGetId("modifier");
+  foreach ($data['data'] as $v) {
+    echo '
+      <label for="contenu">Modification:</label>
+      <form method="POST">
+        <article>
+          <header>
+            <textarea id="post" name="contenu" rows="3">' . $v['Contenu'] . '</textarea>
+            <button type="submit" name="modification" value="' . $v['Id_Article'] . '">modifier</button>
+          </header>
+        </article>
+      </form>';
+  }
+}

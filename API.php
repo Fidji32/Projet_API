@@ -21,11 +21,11 @@ $_SESSION['exp'] = json_decode(jwt_decode($_SESSION['jwt']), true)['exp'];
 
 <body>
   <header>
-    <h1>Tokyon</h1>
+    <h1>Tokyon \ <?php echo $_SESSION['username'] ?></h1>
     <nav>
       <ul>
-        <li><a href="#">Accueil</a></li>
-        <li><a href="#">Profil</a></li>
+        <li><a href="API.php">Accueil</a></li>
+        <li><a href="mesPosts.php">Mes posts</a></li>
         <li><a href="#">Paramètres</a></li>
       </ul>
     </nav>
@@ -38,6 +38,21 @@ $_SESSION['exp'] = json_decode(jwt_decode($_SESSION['jwt']), true)['exp'];
 
   if (isset($_POST['supprimer'])) {
     delete($_POST['supprimer']);
+  }
+
+  if (isset($_POST['modifier'])) {
+    modification();
+  }
+
+  if (isset($_POST['modification'])) {
+    methodePut($_POST['modification'], $_POST['contenu']);
+  }
+
+  if (isset($_POST['like'])) {
+    methodePostAvis($_POST['like'], $_POST['hidden'], $_SESSION['IdUser']);
+  }
+  if (isset($_POST['dislike'])) {
+    methodePostAvis($_POST['dislike'], $_POST['hidden'], $_SESSION['IdUser']);
   }
 
   ?>

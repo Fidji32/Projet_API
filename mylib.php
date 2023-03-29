@@ -48,7 +48,7 @@ function is_connection_valid($login, $mdp)
       }
     }
     $headers = array('alg' => 'HS256', 'typ' => 'jwt');
-    $payload = array('username' => $nom, 'IdUser' => $idUser, 'IdRole' => $idRole, 'exp' => (time() + 60));
+    $payload = array('username' => $nom, 'IdUser' => $idUser, 'IdRole' => $idRole, 'exp' => (time() + 3600));
     $jwt = generate_jwt($headers, $payload);
     return $jwt;
   } else {
@@ -56,11 +56,27 @@ function is_connection_valid($login, $mdp)
   }
 }
 
-function getArticleById($id)
+function getArticleByIdArticle($id)
 {
   $linkpdo = connexionBd();
   // preparation de la Requête sql
-  $req = $linkpdo->prepare('SELECT Id_Article, Date_Publication, Contenu, Date_Modif, article.Id_Utilisateur FROM article, utilisateur where article.Id_Utilisateur = utilisateur.Id_Utilisateur AND Id_Article = :id');
+  $req = $linkpdo->prepare('SELECT Id_Article, Date_Publication, Contenu, Date_Modif, article.Id_Utilisateur, Nom FROM article, utilisateur where article.Id_Utilisateur = utilisateur.Id_Utilisateur AND Id_Article = :id');
+  if ($req == false) {
+    die('Erreur ! GetId');
+  }
+  // execution de la Requête sql
+  $req->execute(array('id' => $id));
+  if ($req == false) {
+    die('Erreur ! GetId');
+  }
+  return $req->fetchAll();
+}
+
+function getArticleByIdUtilisateur($id)
+{
+  $linkpdo = connexionBd();
+  // preparation de la Requête sql
+  $req = $linkpdo->prepare('SELECT Id_Article, Date_Publication, Contenu, Date_Modif, article.Id_Utilisateur, Nom FROM article, utilisateur where article.Id_Utilisateur = utilisateur.Id_Utilisateur AND article.Id_Utilisateur = :id');
   if ($req == false) {
     die('Erreur ! GetId');
   }
@@ -106,8 +122,26 @@ function post($phrase, $id)
   }
   // recuperation du dernier id
   $lastId = $linkpdo->lastInsertId();
-  return getArticleById($lastId);
+  return getArticleByIdArticle($lastId);
 }
+
+function put($id, $contenu)
+{
+  $linkpdo = connexionBd();
+  // preparation de la Requête sql
+  $req = $linkpdo->prepare('update article set Contenu = :contenu, Date_Modif = NOW() where Id_Article = :id');
+  if ($req == false) {
+    die('Erreur ! Put');
+  }
+  // execution de la Requête sql
+  $req->execute(array(':id' => $id, ':contenu' => $contenu));
+  if ($req == false) {
+    die('Erreur ! Put');
+  }
+  // recuperation du dernier id
+  return getArticleByIdArticle($id);
+}
+
 function avis($avis, $idArticle, $idUser)
 {
   $linkpdo = connexionBd();
@@ -119,22 +153,22 @@ function avis($avis, $idArticle, $idUser)
   // execution de la Requête sql
   $req->execute(array(
     ':idArticle' => $idArticle,
-    ':idUser' => $id,
-    ':avis' => $idUser
+    ':idUser' => $idUser,
+    ':avis' => $avis
   ));
   if ($req == false) {
     die('Erreur ! Avis');
   }
   // recuperation du dernier id
   $lastId = $linkpdo->lastInsertId();
-  return getArticleById($lastId);
+  return getArticleByIdArticle($lastId);
 }
 
 function delete($id)
 {
   $linkpdo = connexionBd();
   // preparation de la Requête sql
-  $req = $linkpdo->prepare('delete from articles where Id_Article = :idArticle');
+  $req = $linkpdo->prepare('delete from article where Id_Article = :idArticle');
   if ($req == false) {
     die('Erreur ! Delete');
   }
@@ -145,4 +179,23 @@ function delete($id)
   if ($req == false) {
     die('Erreur ! Delete');
   }
+}
+
+function verificationUtilisateurArticle($id)
+{
+  $linkpdo = connexionBd();
+  // preparation de la Requête sql
+  $req = $linkpdo->prepare('select Id_Utilisateur from article where Id_Article = :id');
+  if ($req == false) {
+    die('Erreur ! Delete');
+  }
+  // execution de la Requête sql
+  $req->execute(array(
+    ':id' => $id
+  ));
+  if ($req == false) {
+    die('Erreur ! Delete');
+  }
+  $res = $req->fetch();
+  return $res[0];
 }

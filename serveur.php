@@ -1,4 +1,5 @@
 <?php
+
 /// Librairies éventuelles (pour la connexion à la BDD, etc.)
 include('mylib.php');
 
@@ -8,6 +9,7 @@ header("Content-Type:application/json");
 // Récupération token et création varaibles
 if (get_bearer_token() != null) {
   $IdRole = json_decode(jwt_decode(get_bearer_token()), true)['IdRole'];
+  $IdUser = json_decode(jwt_decode(get_bearer_token()), true)['IdRole'];
   $exp = json_decode(jwt_decode(get_bearer_token()), true)['exp'];
 }
 
@@ -24,13 +26,20 @@ switch ($http_method) {
       //! //////////////
 
       // Exception
-      if (isset($_GET['id'])) {
-        if (empty($_GET['id'])) {
-          throw new Exception("L'entité fournie (id) avec la requête est incompréhensible ou incomplète", 422);
+      if (isset($_GET['idUti'])) {
+        if (empty($_GET['idUti'])) {
+          throw new Exception("L'entité fournie (idUti) avec la requête est incompréhensible ou incomplète", 422);
         }
-        $matchingData = getArticleById($_GET['id']);
+        $matchingData = getArticleByIdUtilisateur($_GET['idUti']);
       } else {
-        $matchingData = getAllArticles();
+        if (isset($_GET['id'])) {
+          if (empty($_GET['id'])) {
+            throw new Exception("L'entité fournie (id) avec la requête est incompréhensible ou incomplète", 422);
+          }
+          $matchingData = getArticleByIdArticle($_GET['id']);
+        } else {
+          $matchingData = getAllArticles();
+        }
       }
       $RETURN_CODE = 200;
       $STATUS_MESSAGE = "Requête traitée avec succès";
@@ -57,13 +66,27 @@ switch ($http_method) {
         $postedData = file_get_contents('php://input');
         $postedData = json_decode($postedData, true);
         // Exception
-        if (empty($postedData['contenu'])) {
-          throw new Exception("L'entité fournie (contenu) avec la requête est incompréhensible ou incomplète", 422);
+        if (!isset($_GET['id'])) {
+          throw new Exception("L'entité fournie (id) avec la requête est incompréhensible ou incomplète", 422);
         }
-        // Traitement
-        $matchingData = post($postedData['contenu'], 1);
-        $RETURN_CODE = 200;
-        $STATUS_MESSAGE = "Requête traitée avec succès";
+        if (isset($postedData['avis']) && isset($postedData['utilisateur'])) {
+          if (empty($postedData['avis']) || empty($postedData['utilisateur'])) {
+            throw new Exception("L'entité fournie (avis ou utilisateur) avec la requête est incompréhensible ou incomplète", 422);
+          }
+          // Traitement
+          $matchingData = avis($postedData['avis'], $_GET['id'], $postedData['utilisateur']);
+          $RETURN_CODE = 200;
+          $STATUS_MESSAGE = "Requête traitée avec succès";
+        } else {
+          // Exception
+          if (empty($postedData['contenu'])) {
+            throw new Exception("L'entité fournie (contenu) avec la requête est incompréhensible ou incomplète", 422);
+          }
+          // Traitement
+          $matchingData = post($postedData['contenu'], $_GET['id']);
+          $RETURN_CODE = 200;
+          $STATUS_MESSAGE = "Requête traitée avec succès";
+        }
       } else {
         $matchingData = null;
         $RETURN_CODE = 403;
@@ -81,8 +104,40 @@ switch ($http_method) {
     //! Cas de la méthode PUT
     //TODO: PATCH au lieu de PUT car pas toute la ressource
   case "PUT":
-    break;
-  case "PATCH":
+    try {
+
+      //! //////////////
+      //! Traitement ///
+      //! //////////////
+
+      // vérification token + droit utilisateur
+      if (is_jwt_valid(get_bearer_token()) == true && $IdRole == 2 && $IdUser == verificationUtilisateurArticle($_GET['id'])) {
+        // Récupération des données envoyées par le Client
+        $postedData = file_get_contents('php://input');
+        $postedData = json_decode($postedData, true);
+        // Exception
+        if (!isset($_GET['id'])) {
+          throw new Exception("L'entité fournie (id) avec la requête est incompréhensible ou incomplète", 422);
+        }
+        if (empty($postedData['contenu'])) {
+          throw new Exception("L'entité fournie (contenu) avec la requête est incompréhensible ou incomplète", 422);
+        }
+        // Traitement
+        $matchingData = put($_GET['id'], $postedData['contenu']);
+        $RETURN_CODE = 200;
+        $STATUS_MESSAGE = "Requête traitée avec succès";
+      } else {
+        $matchingData = null;
+        $RETURN_CODE = 403;
+        $STATUS_MESSAGE = "Permission non accordée";
+      }
+    } catch (\Throwable $th) {
+      $RETURN_CODE = $th->getCode();
+      $STATUS_MESSAGE = $th->getMessage();
+    } finally {
+      // Envoi de la réponse au Client
+      deliver_response($RETURN_CODE, $STATUS_MESSAGE, $matchingData);
+    }
     break;
     // Cas de la méthode DELETE
   case "DELETE":
@@ -96,14 +151,15 @@ switch ($http_method) {
       if (isset($_GET['id']) && empty($_GET['id'])) {
         throw new Exception("L'entité fournie (id) avec la requête est incompréhensible ou incomplète", 422);
       }
-      if (is_jwt_valid(get_bearer_token())) {
+      if (is_jwt_valid(get_bearer_token()) && ($IdUser == verificationUtilisateurArticle($_GET['id'])) || $IdRole == 1) {
         /// Traitement
         $matchingData = delete($_GET['id']);
         $RETURN_CODE = 200;
         $STATUS_MESSAGE = "Requête traitée avec succès";
       } else {
-        $RETURN_CODE = 401;
-        $STATUS_MESSAGE = "Tokken invalide !";
+        $matchingData = null;
+        $RETURN_CODE = 403;
+        $STATUS_MESSAGE = $IdUser;
       }
     } catch (\Throwable $th) {
       $RETURN_CODE = $th->getCode();
