@@ -15,12 +15,18 @@ session_start();
 
 <body>
     <header>
-        <h1>Tokyon \ <?php echo $_SESSION['username'] ?></h1>
+        <?php
+        if (isset($_SESSION['jwt'])) {
+            echo '<h1>Tokyon \ ' . $_SESSION["username"] . '</h1>';
+        } else {
+            echo '<h1>Tokyon \ anonymous</h1>';
+        }
+        ?>
         <nav>
             <ul>
                 <li><a href="API.php">Accueil</a></li>
                 <li><a href="mesPosts.php">Mes posts</a></li>
-                <li><a href="#">Paramètres</a></li>
+                <li><a href="deconnexion.php">Déconnexion</a></li>
             </ul>
         </nav>
     </header>
@@ -35,7 +41,9 @@ session_start();
         <h1>Mes posts</h1>
         <section class="post-list">
             <?php
-            listArticles($_SESSION['IdUser']);
+            if (isset($_SESSION['IdUser'])) {
+                listArticles($_SESSION['IdUser']);
+            }
             ?>
         </section>
     </main>

@@ -72,6 +72,22 @@ function getArticleByIdArticle($id)
   return $req->fetchAll();
 }
 
+function getReagisByIdArticle($id, $idUser)
+{
+  $linkpdo = connexionBd();
+  // preparation de la Requête sql
+  $req = $linkpdo->prepare('SELECT Id_Article, reagis.Id_Utilisateur, Avis, Nom FROM reagis, utilisateur where reagis.Id_Utilisateur = utilisateur.Id_Utilisateur AND Id_Article = :id AND reagis.Id_Utilisateur = :idUser');
+  if ($req == false) {
+    die('Erreur ! GetId');
+  }
+  // execution de la Requête sql
+  $req->execute(array('id' => $id, 'idUser' => $idUser));
+  if ($req == false) {
+    die('Erreur ! GetId');
+  }
+  return $req->fetchAll();
+}
+
 function getArticleByIdUtilisateur($id)
 {
   $linkpdo = connexionBd();
@@ -90,9 +106,101 @@ function getArticleByIdUtilisateur($id)
 
 function getAllArticles()
 {
+  // Préparation de la requête
+  $sql = "SELECT 
+            article.Id_Article,
+            article.Date_Publication,
+            article.Contenu,
+            article.Date_Modif,
+            article.Id_Utilisateur,
+            utilisateur.Nom,
+            CONCAT('Likes (', COUNT(CASE WHEN reagis.Avis = 1 THEN 1 END), ')') AS Nb_likes,
+            GROUP_CONCAT(DISTINCT utilisateur_likes.Nom ORDER BY utilisateur_likes.Nom SEPARATOR ', ') AS Utilisateurs_likes,
+            CONCAT('Dislikes (', COUNT(CASE WHEN reagis.Avis = 2 THEN 1 END), ')') AS Nb_dislikes,
+            GROUP_CONCAT(DISTINCT utilisateur_dislikes.Nom ORDER BY utilisateur_dislikes.Nom SEPARATOR ', ') AS Utilisateurs_dislikes
+        FROM 
+            article
+            JOIN utilisateur ON article.Id_Utilisateur = utilisateur.Id_Utilisateur
+            LEFT JOIN reagis ON article.Id_Article = reagis.Id_article
+            LEFT JOIN utilisateur utilisateur_likes ON reagis.Id_Utilisateur = utilisateur_likes.Id_Utilisateur AND reagis.Avis = 1
+            LEFT JOIN utilisateur utilisateur_dislikes ON reagis.Id_Utilisateur = utilisateur_dislikes.Id_Utilisateur AND reagis.Avis = 2
+        GROUP BY 
+            article.Id_Article";
   $linkpdo = connexionBd();
   // preparation de la Requête sql
-  $req = $linkpdo->prepare('SELECT Id_Article, Date_Publication, Contenu, Date_Modif, article.Id_Utilisateur, Nom FROM article, utilisateur where article.Id_Utilisateur = utilisateur.Id_Utilisateur');
+  $req = $linkpdo->prepare($sql);
+  if ($req == false) {
+    die('Erreur ! GetAll');
+  }
+  // execution de la Requête sql
+  $req->execute();
+  if ($req == false) {
+    die('Erreur ! GetAll');
+  }
+  return $req->fetchAll();
+}
+
+function getAllArticlesPublisher()
+{
+  // Préparation de la requête
+  $query = 'SELECT 
+            article.Id_Article,
+            article.Date_Publication,
+            article.Contenu,
+            article.Date_Modif,
+            article.Id_Utilisateur,
+            utilisateur.Nom,
+            CONCAT("Likes (", COUNT(CASE WHEN reagis.Avis = 1 THEN 1 END), ")") AS Nb_likes,
+            GROUP_CONCAT(DISTINCT IF(reagis.Avis = 1, NULL, utilisateur_likes.Nom) ORDER BY utilisateur_likes.Nom SEPARATOR ", ") AS Utilisateurs_likes,
+            CONCAT("Dislikes (", COUNT(CASE WHEN reagis.Avis = 2 THEN 1 END), ")") AS Nb_dislikes,
+            GROUP_CONCAT(DISTINCT IF(reagis.Avis = 2, NULL, utilisateur_dislikes.Nom) ORDER BY utilisateur_dislikes.Nom SEPARATOR ", ") AS Utilisateurs_dislikes
+        FROM 
+            article
+            JOIN utilisateur ON article.Id_Utilisateur = utilisateur.Id_Utilisateur
+            LEFT JOIN reagis ON article.Id_Article = reagis.Id_article
+            LEFT JOIN utilisateur utilisateur_likes ON reagis.Id_Utilisateur = utilisateur_likes.Id_Utilisateur AND reagis.Avis = 1
+            LEFT JOIN utilisateur utilisateur_dislikes ON reagis.Id_Utilisateur = utilisateur_dislikes.Id_Utilisateur AND reagis.Avis = 2
+        GROUP BY 
+            article.Id_Article';
+  $linkpdo = connexionBd();
+  // preparation de la Requête sql
+  $req = $linkpdo->prepare($query);
+  if ($req == false) {
+    die('Erreur ! GetAll');
+  }
+  // execution de la Requête sql
+  $req->execute();
+  if ($req == false) {
+    die('Erreur ! GetAll');
+  }
+  return $req->fetchAll();
+}
+
+function getAllArticlesAnonymous()
+{
+  // Préparation de la requête
+  $requete = "SELECT 
+  article.Id_Article,
+  article.Date_Publication,
+  article.Contenu,
+  article.Date_Modif,
+  article.Id_Utilisateur,
+  utilisateur.Nom,
+  null AS Nb_likes,
+  null AS Utilisateurs_likes,
+  null AS Nb_dislikes,
+  null AS Utilisateurs_dislikes
+FROM 
+  article
+  JOIN utilisateur ON article.Id_Utilisateur = utilisateur.Id_Utilisateur
+  LEFT JOIN reagis ON article.Id_Article = reagis.Id_article
+  LEFT JOIN utilisateur utilisateur_likes ON reagis.Id_Utilisateur = utilisateur_likes.Id_Utilisateur AND reagis.Avis = 1
+  LEFT JOIN utilisateur utilisateur_dislikes ON reagis.Id_Utilisateur = utilisateur_dislikes.Id_Utilisateur AND reagis.Avis = 2
+GROUP BY 
+  article.Id_Article";
+  $linkpdo = connexionBd();
+  // preparation de la Requête sql
+  $req = $linkpdo->prepare($requete);
   if ($req == false) {
     die('Erreur ! GetAll');
   }
@@ -160,8 +268,7 @@ function avis($avis, $idArticle, $idUser)
     die('Erreur ! Avis');
   }
   // recuperation du dernier id
-  $lastId = $linkpdo->lastInsertId();
-  return getArticleByIdArticle($lastId);
+  return getReagisByIdArticle($idArticle, $idUser);
 }
 
 function delete($id)

@@ -38,7 +38,15 @@ switch ($http_method) {
           }
           $matchingData = getArticleByIdArticle($_GET['id']);
         } else {
-          $matchingData = getAllArticles();
+          if (isset($IdRole)) {
+            if ($IdRole == 1) {
+              $matchingData = getAllArticles();
+            } else {
+              $matchingData = getAllArticlesPublisher();
+            }
+          } else {
+            $matchingData = getAllArticlesAnonymous();
+          }
         }
       }
       $RETURN_CODE = 200;
@@ -151,7 +159,7 @@ switch ($http_method) {
       if (isset($_GET['id']) && empty($_GET['id'])) {
         throw new Exception("L'entité fournie (id) avec la requête est incompréhensible ou incomplète", 422);
       }
-      if (is_jwt_valid(get_bearer_token()) && ($IdUser == verificationUtilisateurArticle($_GET['id'])) || $IdRole == 1) {
+      if ((is_jwt_valid(get_bearer_token()) == true) && ($IdUser == verificationUtilisateurArticle($_GET['id']) || $IdRole == 1)) {
         /// Traitement
         $matchingData = delete($_GET['id']);
         $RETURN_CODE = 200;
@@ -159,7 +167,7 @@ switch ($http_method) {
       } else {
         $matchingData = null;
         $RETURN_CODE = 403;
-        $STATUS_MESSAGE = $IdUser;
+        $STATUS_MESSAGE = "Permission non accordée";
       }
     } catch (\Throwable $th) {
       $RETURN_CODE = $th->getCode();

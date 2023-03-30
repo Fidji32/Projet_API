@@ -32,7 +32,9 @@ function GetOrGetId($post)
       'http://localhost/Projet_API/serveur.php',
       false,
       stream_context_create(array('http' => array(
-        'method' => 'GET'
+        'method' => 'GET',
+        'header' => array('Content-Type: application/json' . "\r\n"
+          . 'Authorization: Bearer ' . (isset($_SESSION['jwt']) ? $_SESSION['jwt'] : "") . "\r\n")
       )))
     );
   } elseif (!isset($_POST[$post])) {
@@ -88,17 +90,33 @@ function listArticles($post)
             <p>' . $v['Nom'] . '</p>
           </header>
           <p>' . $v['Date_Publication'] . '.</p>
-          <footer>
-            <button type="submit" class="like" name="like" value="1">Like</button>
-            <button type="submit" class="dislike" name="dislike" value="2">Dislike</button>
-            <input type="hidden" name="hidden" value="' . $v['Id_Article'] . '"></input>
-            <span class="likes">0 likes</span>
-          </footer>';
-    if ($v['Id_Utilisateur'] == $_SESSION['IdUser'] || $_SESSION['IdRole'] == 1) {
-      echo '<button class="supprimer" name="supprimer" value="' . $v['Id_Article'] . '">Supprimer</button>';
+          <div class="divArt">
+            <div>
+              <button type="submit" class="like" name="like" value="1">Like</button>';
+    if (isset($v['Nb_likes']) && isset($v['Utilisateurs_likes'])) {
+      echo '<span class="likes">' . $v['Nb_likes'] . '</span>
+                      <span class="likes">' . $v['Utilisateurs_likes'] . '</span>';
     }
-    if ($v['Id_Utilisateur'] == $_SESSION['IdUser'] && $_SESSION['IdRole'] == 2) {
-      echo '<button class="modifier" name="modifier" value="' . $v['Id_Article'] . '">Modifier</button>';
+    echo '</div>
+            <div>
+              <button type="submit" class="dislike" name="dislike" value="2">Dislike</button>';
+    if (isset($v['Nb_dislikes']) && isset($v['Utilisateurs_dislikes'])) {
+      echo '<span class="likes">' . $v['Nb_dislikes'] . '</span>
+                      <span class="likes">' . $v['Utilisateurs_dislikes'] . '</span>';
+    }
+    echo '</div>
+            <input type="hidden" name="hidden" value="' . $v['Id_Article'] . '"></input>
+            
+          </div>';
+    if (isset($_SESSION['IdUser']) && isset($_SESSION['IdRole'])) {
+      if ($v['Id_Utilisateur'] == $_SESSION['IdUser'] || $_SESSION['IdRole'] == 1) {
+        echo '<button class="supprimer" name="supprimer" value="' . $v['Id_Article'] . '">Supprimer</button>';
+      }
+    }
+    if (isset($_SESSION['IdUser']) && isset($_SESSION['IdRole'])) {
+      if ($v['Id_Utilisateur'] == $_SESSION['IdUser'] && $_SESSION['IdRole'] == 2) {
+        echo '<button class="modifier" name="modifier" value="' . $v['Id_Article'] . '">Modifier</button>';
+      }
     }
     echo '</article></form>';
   }

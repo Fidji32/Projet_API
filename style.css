@@ -3,6 +3,10 @@
 	--couleur-fond: rgb(233, 232, 232);
 }
 
+.divArt {
+	display: block;
+}
+
 body {
 	font-family: Arial, sans-serif;
 	margin: 0;
