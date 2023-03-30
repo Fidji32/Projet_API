@@ -16,7 +16,7 @@ function retourDonnees($data)
           <p>' . $v['Date_Publication'] . '.</p>
           <footer>
             <button type="submit" class="like" name="like" value="1">Like</button>
-            <button type="submit" class="dislike" name="dislike" value="0">Dislike</button>
+            <button type="submit" class="dislike" name="dislike" value="2">Dislike</button>
             <input type="hidden" name="hidden" value="' . $v['Id_Article'] . '"></input>
             <span class="likes">0 likes</span>
           </footer>
@@ -90,7 +90,7 @@ function listArticles($post)
           <p>' . $v['Date_Publication'] . '.</p>
           <footer>
             <button type="submit" class="like" name="like" value="1">Like</button>
-            <button type="submit" class="dislike" name="dislike" value="0">Dislike</button>
+            <button type="submit" class="dislike" name="dislike" value="2">Dislike</button>
             <input type="hidden" name="hidden" value="' . $v['Id_Article'] . '"></input>
             <span class="likes">0 likes</span>
           </footer>';
