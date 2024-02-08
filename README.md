@@ -1,30 +1,31 @@
-# 🗒️ Projet_API 
-Cette API permet de traiter les méthodes POST, GET, PUT et DELETE avec différentes fonctionnalités pour certaines :
+This API handles POST, GET, PUT and DELETE methods, some with different functionalities:
 * POST
-    * Poster un article
-    * Poster un avis sur un article
+    * Post an article
+    * Post an opinion on an article
 * GET    
-    * Récupérer tout les articles avec les likes sur ces derniers et les personnes qui on liké ( modérator )
-    * Récupérer tout les articles avec les likes sur ces derniers ( publisher )
-    * Récupérer tout les articles ( anonymous )
-    * Récupérer un seul article 
+    * Retrieve all articles with their likes and the people who liked them ( moderator )
+    * Retrieve all articles with likes ( publisher )
+    * Retrieve all articles ( anonymous )
+    * Retrieve a single article 
 * PUT   
-    * Modifier un article 
+    * Modify an article 
 * DELETE
-    * Supprimer un article
+    * Delete an article
 
-Trois comptes sont disponibles dans la BD dans le GIT :
+Unfortunately, as this is one of my first projects on git, I made a tiny mistake. I forgot to provide the DB script that would run the application, and on top of that, I lost this famous file... 🤣  
+As a result, the rest of the explanations aren't useful, but I'll leave them in case you need them.
+
+Three accounts are available in the GIT database:
 * moderator
-    * mail : moderator@gmail.com
-    * mdp  : azertyuiop
+    * mail: moderator@gmail.com
+    * mdp : azertyuiop
 * publisher
-    * mail : publisher@gmail.com
-    * mdp  : azertyuiop
+    * mail: publisher@gmail.com
+    * mdp : azertyuiop
 * publisher2
-    * mail : publisher2@gmail.com
-    * mdp  : azertyuiop
+    * mail: publisher2@gmail.com
+    * mdp : azertyuiop
     
-Les différents lien utiles pour cette API sont :
-* Le serveur            : http://localhost/Projet_API/server.php
-* L'index de connexion  : http://localhost/Projet_API/connexion.php
-
+The various useful links for this API are :
+* The server: http://localhost/Projet_API/server.php
+* The connection index: http://localhost/Projet_API/connexion.php
