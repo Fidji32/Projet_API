@@ -1,3 +1,5 @@
+# 📨 Project API
+
 This API handles POST, GET, PUT and DELETE methods, some with different functionalities :
 * POST
     * Post an article
